@@ -7,7 +7,7 @@ import { Member } from '../../libs/dto/member/member';
 @Resolver()
 // @UsePipes(ValidationPipe)
 export class MemberResolver {
-	constructor(private readonly memberService: MemberService) {}
+	constructor(private readonly memberService: MemberService) {}  //DI
 
 	@Mutation(() => Member)
 	@UsePipes(ValidationPipe)
