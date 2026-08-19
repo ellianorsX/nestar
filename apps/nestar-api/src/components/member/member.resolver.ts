@@ -6,6 +6,9 @@ import { Member } from '../../libs/dto/member/member';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import type { ObjectId } from 'mongoose';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { MemberType } from '../../libs/enums/member.enum';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Resolver()
 // @UsePipes(ValidationPipe)
@@ -49,8 +52,11 @@ export class MemberResolver {
 
 	//**Admin */
 	//Authentication: Admin
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
 	@Mutation(() => String)
-	public async getAllMembersByAdmin(): Promise<string> {
+	public async getAllMembersByAdmin(@AuthMember() authMember: Member): Promise<string> {
+		console.log('authMember.memberTypes:', authMember.memberType);
 		return this.memberService.getMember();
 	}
 
