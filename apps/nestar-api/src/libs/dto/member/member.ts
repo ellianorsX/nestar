@@ -55,7 +55,7 @@ export class Member {
 	memberLikes: number | undefined;
 
 	@Field(() => Int)
-	memberViews: number | undefined;
+	memberViews!: number;
 
 	@Field(() => Int)
 	memberComments: number | undefined;
