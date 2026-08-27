@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import PropertySchema from '../../schemas/Property.model';
 import { ViewModule } from '../view/view.module';
 import { AuthModule } from '../auth/auth.module';
+import { MemberModule } from '../member/member.module';
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from '../auth/auth.module';
 		]),
 		AuthModule,
 		ViewModule,
+		MemberModule,
 	],
 	providers: [PropertyResolver, PropertyService],
 })
