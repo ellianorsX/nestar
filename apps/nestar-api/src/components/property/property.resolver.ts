@@ -1,17 +1,18 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
-import { PropertyInput } from '../../libs/dto/property/property.input';
+import { PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import * as mongoose from 'mongoose';
-import { Property } from '../../libs/dto/property/property';
+import { Properties, Property } from '../../libs/dto/property/property';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { UseGuards } from '@nestjs/common';
 import { PropertyUpdate } from '../../libs/dto/property/property.updates';
+import type { ObjectId } from 'mongoose';
 
 @Resolver()
 export class PropertyResolver {
@@ -52,5 +53,16 @@ export class PropertyResolver {
 		input._id = shapeIntoMongoObjectId(input._id);
 
 		return await this.propertyService.updateProperty(memberId, input);
+	}
+
+	@UseGuards(WithoutGuard)
+	@Query(() => Properties)
+	public async getProperties(
+		@Args('input') input: PropertiesInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Properties> {
+		console.log('Query: getProperties');
+
+		return await this.propertyService.getProperties(memberId, input);
 	}
 }
