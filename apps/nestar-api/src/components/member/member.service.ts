@@ -11,15 +11,23 @@ import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
 import { ViewInput } from '../../libs/dto/member/view/view.input';
 import { ViewGroup } from '../../libs/enums/view.enum';
+import { PropertyUpdate } from '../../libs/dto/property/property.updates';
+import { PropertyStatus } from '../../libs/enums/property.enum';
+import moment from 'moment';
+import { Properties, Property } from '../../libs/dto/property/property';
+import { lookupMember } from '../../libs/config';
+import { AgentPropertiesInquiry } from '../../libs/dto/property/property.input';
 
 @Injectable()
 export class MemberService {
+	[x: string]: any;
 	constructor(
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
 		private authService: AuthService,
 		private viewService: ViewService,
 	) {}
 
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--SIGN UP--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
 	public async signup(input: MemberInput): Promise<Member> {
 		// TODO: Hash password
 		input.memberPassword = await this.authService.hashPassword(input.memberPassword!);
@@ -37,6 +45,7 @@ export class MemberService {
 		}
 	}
 
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--LOGIN--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
 	public async login(input: LoginInput): Promise<Member> {
 		const { memberNick, memberPassword } = input;
 		const response: Member | null = await this.memberModel
@@ -59,26 +68,38 @@ export class MemberService {
 		return response;
 	}
 
-	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
-		const result: Member | null = await this.memberModel
-			.findOneAndUpdate(
-				{
-					_id: memberId,
-					memberStatus: MemberStatus.ACTIVE,
-				},
-				input,
-				{ new: true },
-			)
-			.exec();
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--UPDATE-PROPERTY--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
+	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
+		const search: T = {
+			_id: input._id,
+			memberId,
+			propertyStatus: PropertyStatus.ACTIVE,
+		};
 
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (input.propertyStatus === PropertyStatus.SOLD) {
+			input.soldAt = moment().toDate();
+		} else if (input.propertyStatus === PropertyStatus.DELETE) {
+			input.deletedAt = moment().toDate();
+		}
 
-		result.accessToken = await this.authService.createToken(result);
+		const result = await this.propertyModel.findOneAndUpdate(search, input, { new: true }).exec();
+
+		if (!result) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		}
+
+		if (input.soldAt || input.deletedAt) {
+			await this.memberService.memberStatsEditor({
+				_id: memberId,
+				targetKey: 'memberProperties',
+				modifier: -1,
+			});
+		}
+
 		return result;
-
-		// return 'updateMember executed';
 	}
 
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--GET-MEMBER--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
 	public async getMember(memberId: ObjectId | null, targetId: ObjectId): Promise<Member> {
 		const search: T = {
 			_id: targetId,
@@ -102,6 +123,7 @@ export class MemberService {
 		return targetMember;
 	}
 
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--GET-AGENT--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
 	public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
 		const { text } = input.search;
 		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE };
@@ -127,6 +149,7 @@ export class MemberService {
 		return result[0];
 	}
 
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--GET.ALL.MEMBER.BY.ADMIN--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
 	public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
 		const { memberStatus, memberType, text } = input.search;
 		const match: T = {};
@@ -153,6 +176,7 @@ export class MemberService {
 		return result[0];
 	}
 
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--UPDATE.MEMBER.BY.ADMIN--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
 		const result = await this.memberModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec();
 
@@ -160,6 +184,7 @@ export class MemberService {
 		return result;
 	}
 
+	/**[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[--MEMBER.STATS.EDITOR--]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] **/
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
 		console.log('executed');
 		const { _id, targetKey, modifier } = input;

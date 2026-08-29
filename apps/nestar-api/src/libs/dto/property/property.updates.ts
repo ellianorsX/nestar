@@ -38,4 +38,7 @@ export class PropertyUpdate {
 	@IsOptional()
 	@Field(() => Number, { nullable: true })
 	propertySquare?: number;
+
+	soldAt?: Date;
+	deletedAt?: Date;
 }
