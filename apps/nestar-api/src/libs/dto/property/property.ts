@@ -71,7 +71,11 @@ export class Property {
 	@Field(() => Date, { nullable: true })
 	constructedAt?: Date;
 
-	// from aggregation
+	@Field(() => Date, { nullable: true })
+	createdAt?: Date;
+
+	@Field(() => Date, { nullable: true })
+	updatedAt?: Date;
 
 	@Field(() => Member, { nullable: true })
 	memberData?: Member;
