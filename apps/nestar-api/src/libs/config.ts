@@ -19,6 +19,8 @@ export const shapeIntoMongoObjectId = (target: any) => {
 
 export const availableBoardArticleSorts = ['createdAt', 'updatedAt', 'articleLikes', 'articleViews'];
 
+export const availableCommentSorts = ['createdAt', 'updatedAt'];
+
 export const availableOptions = ['propertyBarter', 'propertyRent'];
 
 export const availablePropertySorts = [
