@@ -17,6 +17,8 @@ export const shapeIntoMongoObjectId = (target: any) => {
 	return typeof target === 'string' ? new ObjectId(target) : target;
 };
 
+export const availableBoardArticleSorts = ['createdAt', 'updatedAt', 'articleLikes', 'articleViews'];
+
 export const availableOptions = ['propertyBarter', 'propertyRent'];
 
 export const availablePropertySorts = [
