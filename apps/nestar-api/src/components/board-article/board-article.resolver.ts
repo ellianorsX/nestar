@@ -17,6 +17,7 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import * as mongoose_1 from 'mongoose';
+import { ObjectId } from 'mongoose';
 
 @Resolver()
 export class BoardArticleResolver {
@@ -75,6 +76,17 @@ export class BoardArticleResolver {
 		// input.search.memberId = shapeIntoMongoObjectId(input.search.memberId);
 
 		return await this.boardArticleService.getBoardArticles(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => BoardArticle)
+	public async likeTargetBoardArticle(
+		@Args('articleId') input: string,
+		@AuthMember('_id') memberId: mongoose.ObjectId,
+	): Promise<BoardArticle> {
+		console.log('Mutation: likeTargetBoardArticle');
+		const likeRefId = shapeIntoMongoObjectId(input);
+		return await this.boardArticleService.likeTargetBoardArticle(memberId, likeRefId);
 	}
 
 	/**''''''''''''''''''''''''''''ONLY FOR ADMIN''''''''''''''''''''''''''''''''''''''''''''  **/
