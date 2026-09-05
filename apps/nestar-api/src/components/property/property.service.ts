@@ -76,14 +76,13 @@ export class PropertyService {
 				});
 
 				targetProperty.propertyViews = updatedProperty.propertyViews;
-			}
 
-			// meLiked logikasi:
-			// targetProperty.meLiked = await this.likeService.checkLike({
-			//   memberId,
-			//   likeRefId: propertyId,
-			//   likeGroup: LikeGroup.PROPERTY,
-			// });
+				//meliked
+				const likeInput = { memberId: memberId, likeRefId: propertyId, likeGroup: LikeGroup.PROPERTY };
+				targetProperty.meLiked = (await this.likeService.checkLikeExistence(
+					likeInput,
+				)) as unknown as typeof targetProperty.meLiked;
+			}
 		}
 
 		targetProperty.memberData = await this.memberService.getMember(null, targetProperty.memberId);
