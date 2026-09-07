@@ -15,7 +15,7 @@ import { PropertyUpdate } from '../../libs/dto/property/property.updates';
 import { PropertyStatus } from '../../libs/enums/property.enum';
 import moment from 'moment';
 import { Properties, Property } from '../../libs/dto/property/property';
-import { lookupMember } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember } from '../../libs/config';
 import { AgentPropertiesInquiry } from '../../libs/dto/property/property.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeInput } from '../../libs/dto/like/like.input';
@@ -131,7 +131,10 @@ export class MemberService {
 				likeInput,
 			)) as unknown as typeof targetMember.meLiked;
 
-			targetMember.meFollowed = (await this.checkSubscription(memberId, targetId)) as unknown as typeof targetMember.meFollowed;
+			targetMember.meFollowed = (await this.checkSubscription(
+				memberId,
+				targetId,
+			)) as unknown as typeof targetMember.meFollowed;
 		}
 
 		return targetMember;
@@ -170,7 +173,11 @@ export class MemberService {
 				{ $sort: sort },
 				{
 					$facet: {
-						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupAuthMemberLiked(memberId), // check if the member liked the agent
+						],
 						metaCounter: [{ $count: 'total' }],
 					},
 				},

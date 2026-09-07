@@ -44,10 +44,13 @@ export class BoardArticle {
 
 	/** from aggregation **/
 
+	/** from aggregation **/
+
 	@Field(() => [MeLiked], { nullable: true })
 	meLiked?: MeLiked[];
-	memberData!: Member;
 
+	@Field(() => Member, { nullable: true })
+	memberData?: Member;
 	// @Field(() => Member, { nullable: true })
 	// memberData?: Member;
 	// meLiked: import("../like/like").MeLiked[];

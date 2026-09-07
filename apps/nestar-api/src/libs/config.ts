@@ -24,7 +24,7 @@ export const availableCommentSorts = ['createdAt', 'updatedAt'];
 
 export const availableOptions = ['propertyBarter', 'propertyRent'];
 
-export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$$_id') => {
+export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => {
 	return {
 		$lookup: {
 			from: 'likes',
