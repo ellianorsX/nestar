@@ -194,19 +194,19 @@ export class PropertyService {
 			match.memberId = shapeIntoMongoObjectId(memberId);
 		}
 
-		if (locationList) {
+		if (Array.isArray(locationList) && locationList.length) {
 			match.propertyLocation = { $in: locationList };
 		}
 
-		if (roomsList) {
+		if (Array.isArray(roomsList) && roomsList.length) {
 			match.propertyRooms = { $in: roomsList };
 		}
 
-		if (bedsList) {
+		if (Array.isArray(bedsList) && bedsList.length) {
 			match.propertyBeds = { $in: bedsList };
 		}
 
-		if (typeList) {
+		if (Array.isArray(typeList) && typeList.length) {
 			match.propertyType = { $in: typeList };
 		}
 
@@ -231,13 +231,13 @@ export class PropertyService {
 			};
 		}
 
-		if (text) {
+		if (text && text.trim()) {
 			match.propertyTitle = {
-				$regex: new RegExp(text, 'i'),
+				$regex: new RegExp(text.trim(), 'i'),
 			};
 		}
 
-		if (options) {
+		if (Array.isArray(options) && options.length) {
 			match['$or'] = options.map((ele) => {
 				return { [ele]: true };
 			});
