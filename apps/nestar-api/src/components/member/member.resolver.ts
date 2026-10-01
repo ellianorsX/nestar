@@ -5,14 +5,13 @@ import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../li
 import { Member, Members } from '../../libs/dto/member/member';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
-import type { ObjectId } from 'mongoose';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
-import mongoose from 'mongoose';
+import mongoose, * as mongoose_1 from 'mongoose';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
@@ -57,7 +56,7 @@ export class MemberResolver {
 	public async updateMember(
 		@Args('input') input: MemberUpdate,
 
-		@AuthMember('_id') memberId: ObjectId,
+		@AuthMember('_id') memberId: mongoose.Types.ObjectId,
 	): Promise<Member> {
 		console.log('Mutation: updateMember');
 		delete (input as Partial<MemberUpdate>)._id;
@@ -66,7 +65,10 @@ export class MemberResolver {
 
 	@UseGuards(WithoutGuard)
 	@Query(() => Member)
-	public async getMember(@Args('memberId') input: string, @AuthMember('_id') memberId: ObjectId): Promise<Member> {
+	public async getMember(
+		@Args('memberId') input: string,
+		@AuthMember('_id') memberId: mongoose_1.ObjectId,
+	): Promise<Member> {
 		console.log('Query: getMember');
 		console.log('Authenticated member ID:', memberId);
 		const targetId = shapeIntoMongoObjectId(input);
@@ -87,7 +89,7 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	public async likeTargetMember(
 		@Args('memberId') input: string,
-		@AuthMember('_id') memberId: ObjectId,
+		@AuthMember('_id') memberId: mongoose.Types.ObjectId,
 	): Promise<Member> {
 		console.log('Mutation: likeTargetMember');
 		const likeRefId = shapeIntoMongoObjectId(input);
