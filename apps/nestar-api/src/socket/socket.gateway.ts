@@ -9,13 +9,13 @@ import * as url from 'url';
 interface MessagePayload {
 	event: string;
 	text: string;
-	memberData?: Member;
+	memberData?: Member | null;
 }
 
 interface InfoPayload {
 	event: string;
 	totalClients: number;
-	memberData: Member;
+	memberData?: Member | null;
 	action: string;
 }
 
@@ -23,7 +23,7 @@ interface InfoPayload {
 export class SocketGateway implements OnGatewayInit {
 	private logger: Logger = new Logger('SocketEventsGateway');
 	private summaryClient: number = 0;
-	private clientsAuthMap = new Map<WebSocket, Member>();
+	private clientsAuthMap = new Map<WebSocket, Member | null>();
 	private messagesList: MessagePayload[] = [];
 
 	constructor(private authService: AuthService) {}
@@ -35,7 +35,7 @@ export class SocketGateway implements OnGatewayInit {
 		this.logger.verbose(`WebSocket Server Initialized & total [${this.summaryClient}]`);
 	}
 
-	private async retrieveAuth(req: any): Promise<Member> {
+	private async retrieveAuth(req: any): Promise<Member | null> {
 		try {
 			const parseUrl = url.parse(req.url, true);
 			const { token } = parseUrl.query;
